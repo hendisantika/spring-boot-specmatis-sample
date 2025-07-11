@@ -1,0 +1,23 @@
+services:
+  app:
+    build: .
+    container_name: spring-app
+    ports:
+      - "8080:8080"
+
+  specmatic:
+    image: eclipse-temurin:21-jdk-jammy
+    container_name: specmatic-proxy
+    volumes:
+      - ./specmatic.jar:/specmatic.jar
+      - ./api.yaml:/api.yaml
+    depends_on:
+      - app
+    ports:
+      - "9000:9000"
+    command: >
+      sh -c "java -jar /specmatic.jar proxy
+      --schema /api.yaml
+      --host 0.0.0.0
+      --port 9000
+      --target http://spring-app:8080"
