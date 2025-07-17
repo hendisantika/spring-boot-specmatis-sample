@@ -1,18 +1,201 @@
-openapi: 3.0.0
+openapi: 3.0.1
 info:
-  title: Hello API
+  title: Customer API
+  description: Spring Boot REST API for managing customers
+  termsOfService: https://github.com/hendisantika
+  contact:
+    name: Hendi Santika
+    url: https://s.id/hendisantika
+    email: hendisantika@yahoo.co.id
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
   version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+tags:
+  - name: Hello
+    description: Hello World API
+  - name: Customer
+    description: Customer management API
 paths:
-  /hello:
+  /api/customers/{id}:
     get:
+      tags:
+        - Customer
+      summary: Get a customer by ID
+      description: Retrieves a customer by their ID
+      operationId: getCustomerById
+      parameters:
+        - name: id
+          in: path
+          description: ID of the customer to retrieve
+          required: true
+          schema:
+            type: integer
+            format: int64
       responses:
         '200':
-          description: Say Hello
+          description: Successfully retrieved the customer
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Hello, World!
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Customer with the same email already exists
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: Customer not found
+          content:
+            application/json: { }
+    put:
+      tags:
+        - Customer
+      summary: Update an existing customer
+      description: Updates an existing customer's information
+      operationId: updateCustomer
+      parameters:
+        - name: id
+          in: path
+          description: ID of the customer to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Updated customer object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+        required: true
+      responses:
+        '200':
+          description: Customer successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Customer with the same email already exists
+          content:
+            application/json: { }
+        '404':
+          description: Customer not found
+          content:
+            application/json: { }
+    delete:
+      tags:
+        - Customer
+      summary: Delete a customer
+      description: Deletes a customer by their ID
+      operationId: deleteCustomer
+      parameters:
+        - name: id
+          in: path
+          description: ID of the customer to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Customer successfully deleted
+        '400':
+          description: Customer with the same email already exists
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: Customer not found
+          content:
+            application/json: { }
+  /api/customers:
+    get:
+      tags:
+        - Customer
+      summary: Get all customers
+      description: Retrieves a list of all customers in the system
+      operationId: getAllCustomers
+      responses:
+        '200':
+          description: Successfully retrieved the list of customers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Customer with the same email already exists
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                type: string
+    post:
+      tags:
+        - Customer
+      summary: Create a new customer
+      description: Creates a new customer in the system
+      operationId: createCustomer
+      requestBody:
+        description: Customer object to be created
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+        required: true
+      responses:
+        '201':
+          description: Customer successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Customer with the same email already exists
+          content:
+            application/json: { }
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                type: string
+  /hello:
+    get:
+      tags:
+        - Hello
+      summary: Get a hello message
+      description: Returns a simple hello world message
+      operationId: hello
+      responses:
+        '200':
+          description: Successfully retrieved the hello message
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas:
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
