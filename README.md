@@ -1,19 +1,35 @@
-Specmatic: Things Todo List
+# Spring Boot Specmatic with Customer CRUD API
 
-Here's a step-by-step guide to run Specmatic in proxy mode and a working example.
+This project demonstrates a Spring Boot application with:
 
-📦 Project Structure
+1. A simple Hello API
+2. A complete CRUD REST API for Customer management
+3. H2 in-memory database
+4. Specmatic for API contract testing
+
+## 📦 Project Structure
 
 ```shell
 spring-boot-specmatic/
-├── src/main/java/com/example/demo/
-│ └── HelloController.java
+├── src/main/java/id/my/hendisantika/specmatic/
+│ ├── HelloController.java
+│ ├── SpringBootSpecmaticApplication.java
+│ └── customer/
+│     ├── Customer.java
+│     ├── CustomerRepository.java
+│     ├── CustomerService.java
+│     ├── CustomerController.java
+│     ├── CustomerNotFoundException.java
+│     ├── CustomerAlreadyExistsException.java
+│     └── DataLoader.java
+├── src/main/resources/
+│ └── application.properties
 ├── pom.xml
 ├── api.yaml
 └── specmatic.jar
 ```
 
-✅ 1. Spring Boot REST API
+## ✅ 1. Spring Boot REST API
 HelloController.java
 
 ```java
@@ -34,7 +50,7 @@ public class HelloController {
 }
 ```
 
-✅ 2. pom.xml (Minimal)
+## ✅ 2. pom.xml (Minimal)
 
 ```xml
 <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -71,7 +87,7 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
 </project>
 ```
 
-✅ 3. OpenAPI Contract: api.yaml
+## ✅ 3. OpenAPI Contract: api.yaml
 
 ```yaml
 openapi: 3.0.0
@@ -95,13 +111,13 @@ paths:
 
 ```
 
-✅ 4. Download Specmatic Jar
+## ✅ 4. Download Specmatic Jar
 
 ```shell
 wget https://github.com/specmatic/specmatic/releases/download/2.15.0/specmatic.jar
 ```
 
-🚀 5. Run the App & Proxy
+## 🚀 5. Run the App & Proxy
 5.1 Start Spring Boot App
 
 ```shell
@@ -116,13 +132,119 @@ mvn spring-boot:run
 java -jar specmatic.jar proxy --host localhost --port 9000 --target http://localhost:8080 ./testing
 ```
 
-✅ 6. Test Through Proxy
+## ✅ 6. Test Through Proxy
 
 ```shell
 curl http://localhost:9000/hello
 ```
 
-You’ll get the proxied response if valid. If it doesn't match the contract, Specmatic will print validation errors.
+You'll get the proxied response if valid. If it doesn't match the contract, Specmatic will print validation errors.
 
+## 🔄 Customer CRUD API
 
+The application includes a complete CRUD API for Customer management with the following endpoints:
 
+### Endpoints
+
+| Method | URL                 | Description                 | Status Codes                           |
+|--------|---------------------|-----------------------------|----------------------------------------|
+| GET    | /api/customers      | Get all customers           | 200 OK                                 |
+| GET    | /api/customers/{id} | Get customer by ID          | 200 OK, 404 Not Found                  |
+| POST   | /api/customers      | Create a new customer       | 201 Created, 400 Bad Request           |
+| PUT    | /api/customers/{id} | Update an existing customer | 200 OK, 400 Bad Request, 404 Not Found |
+| DELETE | /api/customers/{id} | Delete a customer           | 204 No Content, 404 Not Found          |
+
+### Customer Model
+
+```json
+{
+  "id": 1,
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "phone": "1234567890"
+}
+```
+
+### Sample Requests
+
+#### Get all customers
+
+```shell
+curl -X GET http://localhost:8080/api/customers
+```
+
+#### Get customer by ID
+
+```shell
+curl -X GET http://localhost:8080/api/customers/1
+```
+
+#### Create a new customer
+
+```shell
+curl -X POST http://localhost:8080/api/customers \
+  -H "Content-Type: application/json" \
+  -d '{"name":"New Customer","email":"new.customer@example.com","phone":"9876543210"}'
+```
+
+#### Update a customer
+
+```shell
+curl -X PUT http://localhost:8080/api/customers/1 \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Updated Name","email":"john.doe@example.com","phone":"1234567890"}'
+```
+
+#### Delete a customer
+
+```shell
+curl -X DELETE http://localhost:8080/api/customers/1
+```
+
+## 📝 API Documentation with Swagger UI
+
+The application includes Swagger UI for interactive API documentation. Swagger UI provides a user-friendly interface to
+explore and test the API endpoints.
+
+### Accessing Swagger UI
+
+You can access the Swagger UI at:
+
+```
+http://localhost:8080/swagger-ui
+```
+
+### Features
+
+- Interactive API documentation
+- Test API endpoints directly from the browser
+- View request and response models
+- Explore available endpoints and their parameters
+- Download OpenAPI specification
+
+### Integration with OpenAPI Specification
+
+The Swagger UI is integrated with the existing OpenAPI specification (api.yaml) and enhanced with additional metadata
+through the OpenApiConfig class.
+
+## 💾 H2 Database
+
+The application uses an H2 in-memory database for storing customer data.
+
+### H2 Console
+
+The H2 console is enabled and can be accessed at:
+
+```
+http://localhost:8080/h2-console
+```
+
+Connection details:
+
+- JDBC URL: `jdbc:h2:mem:customerdb`
+- Username: `sa`
+- Password: `password`
+
+### Sample Data
+
+The application automatically loads sample customer data on startup using the `DataLoader` class.
