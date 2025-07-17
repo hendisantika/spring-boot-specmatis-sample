@@ -1,23 +1,16 @@
 services:
-  app:
-    build: .
-    container_name: spring-app
+  mysql:
+    image: mysql:9.3.0
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=53cret
+      - MYSQL_DATABASE=customerdb
+      - MYSQL_USER=yu71
+      - MYSQL_PASSWORD=53cret
     ports:
-      - "8080:8080"
-
-  specmatic:
-    image: eclipse-temurin:21-jdk-jammy
-    container_name: specmatic-proxy
+      - "3309:3306"
     volumes:
-      - ./specmatic.jar:/specmatic.jar
-      - ./api.yaml:/api.yaml
-    depends_on:
-      - app
-    ports:
-      - "9000:9000"
-    command: >
-      sh -c "java -jar /specmatic.jar proxy
-      --schema /api.yaml
-      --host 0.0.0.0
-      --port 9000
-      --target http://spring-app:8080"
+      - ./mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
