@@ -59,8 +59,14 @@ Run the interactive UI to explore test cases auto-generated from the contract:
 Then open your browser:
 
 ```
-http://localhost:9001/examples
+http://localhost:9001/_specmatic/examples
 ```
+
+Interactive UI
+
+![Interactive UI](img/interactive1.png "Interactive UI")
+
+![Interactive UI](img/interactive2.png "Interactive UI")
 
 You can:
 
