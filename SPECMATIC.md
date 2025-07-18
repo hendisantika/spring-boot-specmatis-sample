@@ -21,10 +21,10 @@ Rename for convenience:
 mv specmatic-*.jar specmatic.jar
 ```
 
-### Option B: Using Homebrew (macOS)
+Run as Docker Container:
 
-```
-brew install specmatic
+```shell
+docker run specmatic/specmatic proxy --target=http://localhost:8080 ./testing
 ```
 
 ## 📄 2. Prepare Your OpenAPI Contract
@@ -43,7 +43,7 @@ contract.yaml
 To validate real-time traffic against the contract:
 
 ```
-java -jar specmatic.jar proxy —target http://localhost:8080 ./testing
+java -jar specmatic.jar proxy --target=http://localhost:8080 ./testing
 ```
 
 Specmatic will intercept calls and ensure all requests and responses match the contract.
