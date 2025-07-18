@@ -46,6 +46,10 @@ To validate real-time traffic against the contract:
 java -jar specmatic.jar proxy --target=http://localhost:8080 ./testing
 ```
 
+Proxy
+
+![Proxy](img/proxy.png "Proxy")
+
 Specmatic will intercept calls and ensure all requests and responses match the contract.
 
 ## 📟 4. Use Specmatic Examples UI to Interactively Validate
