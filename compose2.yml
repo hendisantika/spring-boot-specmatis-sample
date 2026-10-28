@@ -21,7 +21,7 @@ services:
       - ./mysql-data:/var/lib/mysql
 
   specmatic:
-    image: eclipse-temurin:21-jdk-jammy
+    image: eclipse-temurin:25-jre-noble
     container_name: specmatic-proxy
     volumes:
       - ./specmatic.jar:/specmatic.jar
