@@ -1,12 +1,12 @@
 # Dockerfile
-FROM eclipse-temurin:21-jdk-jammy as build
+FROM eclipse-temurin:25-jdk-noble AS build
 LABEL authors="hendisantika"
 
 WORKDIR /app
 COPY . .
 RUN ./mvnw clean package -DskipTests
 
-FROM eclipse-temurin:21-jdk-jammy
+FROM eclipse-temurin:25-jre-noble
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
