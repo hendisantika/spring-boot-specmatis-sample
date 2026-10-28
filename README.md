@@ -1,5 +1,12 @@
 # Spring Boot Specmatic with Customer CRUD API
 
+[![CI](https://github.com/hendisantika/spring-boot-specmatis-sample/actions/workflows/ci.yml/badge.svg)](https://github.com/hendisantika/spring-boot-specmatis-sample/actions/workflows/ci.yml)
+![Java](https://img.shields.io/badge/Java-25-orange?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.16-6DB33F?logo=springboot)
+![Maven](https://img.shields.io/badge/Maven-3.9.16-C71A36?logo=apachemaven)
+![MySQL](https://img.shields.io/badge/MySQL-9.3.0-4479A1?logo=mysql&logoColor=white)
+[![Dependabot](https://img.shields.io/badge/Dependabot-enabled-025E8C?logo=dependabot)](.github/dependabot.yml)
+
 This project demonstrates a Spring Boot application with:
 
 1. A simple Hello API
@@ -7,11 +14,33 @@ This project demonstrates a Spring Boot application with:
 3. MySQL database with Docker Compose
 4. Specmatic for API contract testing
 5. Swagger UI for API documentation
+6. GitHub Actions CI on JDK 25 and automated dependency updates with Dependabot
+
+## 🧰 Tech Stack
+
+| Component          | Version                 |
+|--------------------|-------------------------|
+| Java (JDK)         | 25 (Eclipse Temurin)    |
+| Spring Boot        | 3.5.16                  |
+| springdoc-openapi  | 2.8.17                  |
+| Maven (wrapper)    | 3.9.16                  |
+| MySQL              | 9.3.0                   |
+| Specmatic          | 2.15.0                  |
+
+## ⚙️ Prerequisites
+
+- JDK 25 (e.g. `sdk install java 25-tem`)
+- Docker & Docker Compose (for MySQL)
+- No local Maven needed; use the bundled `./mvnw` wrapper
 
 ## 📦 Project Structure
 
 ```shell
 spring-boot-specmatic/
+├── .github/
+│ ├── dependabot.yml
+│ └── workflows/
+│     └── ci.yml
 ├── src/main/java/id/my/hendisantika/specmatic/
 │ ├── HelloController.java
 │ ├── SpringBootSpecmaticApplication.java
@@ -79,7 +108,7 @@ public class HelloController {
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.3</version>
+        <version>3.5.16</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>id.my.hendisantika</groupId>
@@ -88,7 +117,7 @@ public class HelloController {
     <name>spring-boot-specmatic</name>
     <description>spring-boot-specmatic</description>
     <properties>
-        <java.version>21</java.version>
+        <java.version>25</java.version>
     </properties>
     <dependencies>
         <dependency>
@@ -102,7 +131,6 @@ public class HelloController {
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
-            <version>9.3.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -120,7 +148,7 @@ public class HelloController {
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.4.0</version>
+            <version>2.8.17</version>
         </dependency>
     </dependencies>
 
@@ -169,10 +197,10 @@ wget https://github.com/specmatic/specmatic/releases/download/2.15.0/specmatic.j
 5.1 Start Spring Boot App
 
 ```shell
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
-# runs at http://localhost:8080
+The app runs at http://localhost:8080
 
 5.2 Start Specmatic Proxy (Command Line)
 
@@ -260,14 +288,14 @@ The project includes a Dockerfile that builds the application and creates a Dock
 
 ```dockerfile
 # Dockerfile
-FROM eclipse-temurin:21-jdk-jammy as build
+FROM eclipse-temurin:25-jdk-noble AS build
 LABEL authors="hendisantika"
 
 WORKDIR /app
 COPY . .
 RUN ./mvnw clean package -DskipTests
 
-FROM eclipse-temurin:21-jdk-jammy
+FROM eclipse-temurin:25-jre-noble
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
@@ -307,8 +335,11 @@ To build and run the application with Docker:
 # Build the Docker image
 docker build -t spring-boot-specmatic .
 
-# Run the application with Docker Compose
-docker-compose up
+# Run MySQL only
+docker compose up -d
+
+# Run app + MySQL + Specmatic proxy (JDK 25)
+docker compose -f compose2.yml up --build
 ```
 
 ## 📝 API Documentation with Swagger UI
@@ -373,3 +404,36 @@ The MySQL database is configured to run in a Docker container using Docker Compo
 ### Sample Data
 
 The application automatically loads sample customer data on startup using the `DataLoader` class.
+
+## 🧪 Build & Test Locally
+
+The context-load test needs a running MySQL. Start it with Docker and point the datasource at it:
+
+```shell
+docker compose up -d
+SPRING_DATASOURCE_URL='jdbc:mysql://localhost:3309/customerdb?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true' \
+  ./mvnw verify
+```
+
+## 👷 Continuous Integration
+
+GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs on every push and pull request to `main`:
+
+1. **Build & Test (JDK 25)**: sets up Temurin JDK 25 with Maven caching, starts a MySQL 9.3.0 service container and
+   runs `./mvnw verify`. Surefire reports are uploaded as an artifact when the build fails.
+2. **Docker image build**: builds the Docker image with Buildx (GitHub Actions cache enabled) to make sure the
+   `Dockerfile` keeps working.
+
+## 🤖 Dependabot
+
+Dependabot ([`.github/dependabot.yml`](.github/dependabot.yml)) checks for updates weekly (Monday 06:00, Asia/Jakarta):
+
+| Ecosystem        | What it updates                   | Grouping / rules                                                 |
+|------------------|-----------------------------------|------------------------------------------------------------------|
+| `maven`          | `pom.xml` dependencies & parent   | Spring Boot, springdoc, and other minor/patch updates are grouped |
+| `github-actions` | Actions used in workflows         | All bumps grouped into a single PR                               |
+| `docker`         | `Dockerfile` base images          | `eclipse-temurin` stays on the JDK 25 line (major bumps ignored) |
+| `docker-compose` | `compose.yml` images              | n/a                                                              |
+
+Pull requests are labeled (`dependencies` plus the ecosystem) and use conventional commit prefixes such as
+`build(deps):` and `ci(deps):`.
